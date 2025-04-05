@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pyramid Solitaire for Mom</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container"> <h1>Pyramid Solitaire</h1>
+
+        <div id="pyramid">
+            </div>
+
+        <div id="bottom-area">
+
+            <div id="stock-waste">
+                <div id="stock" class="pile card card-back">
+                    </div>
+                <div id="waste" class="pile">
+                    </div>
+            </div>
+
+            <div id="info-area">
+                <div class="button-group">
+                    <button id="new-game-button">New Game</button>
+                    <button id="undo-button" title="Undo last move" disabled>Undo</button> <button id="rules-button" title="Show Rules">?</button> </div>
+
+                <p>Score: <span id="score-value">0</span></p>
+                <p>High Score: <span id="high-score-value">0</span></p> <p id="message"></p>
+
+                <p id="win-message" class="special-win-message"></p>
+            </div>
+        </div> <div id="game-over-overlay">
+             <span id="game-over-text"></span> </div>
+
+        <div id="rules-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="close-rules-button">&times;</span>
+                <h2>Pyramid Solitaire Rules</h2>
+                <p><strong>Objective:</strong> Clear all cards from the pyramid.</p>
+                <ul>
+                    <li>Remove pairs of available cards that total 13.</li>
+                    <li>Card values: Ace=1, 2-10 face value, J=11, Q=12, K=13.</li>
+                    <li>Kings (value 13) can be removed by themselves.</li>
+                    <li>Available cards are those not covered by any other card in the pyramid, or the top card of the Waste pile.</li>
+                    <li>Click the Stock pile (top left) to deal a card to the Waste pile (next to it).</li>
+                    <li>You can reset the Waste pile back to the Stock once per game when the Stock is empty.</li>
+                </ul>
+            </div>
+        </div>
+
+    </div> <script src="script.js" defer></script>
+</body>
+</html>

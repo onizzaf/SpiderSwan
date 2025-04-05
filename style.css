@@ -1,0 +1,147 @@
+/* style.css (Regenerated with Polish Features) */
+
+/* Color Palette & Basic Setup (Mostly Same) */
+:root {
+    --bg-color: #D5E1E8;
+    --accent-color: #F2A477;
+    --card-placeholder-border-color: #5E6970;
+    --text-color: #333333;
+    --card-bg: #ffffff;
+    --card-back-image: url('card-back-swan.jpg');
+    --red-suit-color: #B30000;
+    --black-suit-color: #000000;
+
+    --card-width: 70px;
+    --card-height: 100px;
+    --card-reveal-vertical: 65px; /* 100 - 35 */
+    --card-horizontal-spacing: calc(var(--card-width) + 10px);
+}
+
+body {
+    font-family: sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding-top: 20px;
+    overflow-x: hidden;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    position: relative; /* Needed for overlay positioning */
+}
+
+h1 {
+    color: var(--card-placeholder-border-color);
+    margin-bottom: 10px;
+}
+
+/* Pyramid & Card Base Styles (Mostly Same) */
+#pyramid {
+    position: relative;
+    width: calc(var(--card-horizontal-spacing) * 7 - (var(--card-horizontal-spacing) - var(--card-width)));
+    height: calc(var(--card-height) + (var(--card-reveal-vertical) * 6));
+    margin-bottom: 20px;
+}
+
+.card {
+    width: var(--card-width);
+    height: var(--card-height);
+    border: 2px solid black;
+    border-radius: 5px;
+    background-color: var(--card-bg);
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    position: relative; /* For internal corners */
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    overflow: hidden;
+    user-select: none;
+    cursor: default;
+    transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+}
+#pyramid .card { position: absolute; } /* Position pyramid cards */
+
+.card-back { background-image: var(--card-back-image); background-size: cover; background-position: center; background-color: var(--card-placeholder-border-color); color: transparent; }
+.card .corner { position: absolute; width: 20px; text-align: center; line-height: 1; }
+.card .corner .rank { font-size: 0.9em; display: block; }
+.card .corner .suit { font-size: 0.7em; display: block; line-height: 0.8; }
+.card .corner.top-left { top: 5px; left: 3px; }
+.card .corner.bottom-right { bottom: 5px; right: 3px; transform: rotate(180deg); }
+.card .center-suit { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.5em; opacity: 0.7; line-height: 1; }
+.suit-hearts, .suit-diams { color: var(--red-suit-color); }
+.suit-clubs, .suit-spades { color: var(--black-suit-color); }
+.card.available:not(.card-back) { cursor: pointer; }
+.card.selected { border-color: var(--accent-color); box-shadow: 0 0 8px var(--accent-color); transform: scale(1.05); }
+
+/* Bottom Area & Piles (Mostly Same) */
+#bottom-area { display: flex; justify-content: space-between; align-items: flex-start; width: 90%; max-width: 600px; gap: 20px; }
+#stock-waste { display: flex; gap: 15px; }
+.pile { width: var(--card-width); height: var(--card-height); border: 2px dashed var(--card-placeholder-border-color); border-radius: 5px; position: relative; }
+.pile .card { position: absolute; top: 0; left: 0; }
+#stock.card-back { border: 2px solid black; background-image: var(--card-back-image); background-size: cover; background-position: center; cursor: pointer; }
+#stock.empty { border: 2px dashed var(--card-placeholder-border-color); background-image: none; cursor: default; }
+#stock.empty.resettable { border-style: solid; border-color: var(--accent-color); cursor: pointer; }
+#waste:empty { background-color: rgba(0,0,0,0.05); }
+
+/* Info Area & Buttons (Added Undo/Rules Buttons) */
+#info-area { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; } /* Reduced gap */
+.button-group { display: flex; gap: 10px; margin-bottom: 5px; } /* Group buttons */
+#info-area button { padding: 8px 12px; background-color: var(--accent-color); color: var(--card-bg); border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em; transition: background-color 0.2s ease; }
+#info-area button:hover { background-color: #e08f60; }
+#info-area button:disabled { background-color: #cccccc; cursor: not-allowed; }
+#rules-button { font-weight: bold; padding: 8px 10px; } /* Style rules button */
+#info-area p { margin: 3px 0; } /* Tighter paragraph spacing */
+#score-value, #high-score-value { font-weight: bold; min-width: 30px; display: inline-block; text-align: right; }
+#message { font-weight: bold; min-height: 1.2em; }
+.special-win-message { font-style: italic; color: var(--accent-color); font-weight: bold; background-color: rgba(255, 255, 255, 0.7); padding: 10px; border-radius: 5px; margin-top: 10px; display: none; }
+
+/* --- NEW: Animations & Overlays --- */
+
+/* Card Removal Animation */
+@keyframes fade-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.8); visibility: hidden; } }
+.card.removing { animation: fade-out 0.3s ease-out forwards; z-index: 100 !important; }
+
+/* Stock to Waste Animation (Simple Fade/Flip) */
+@keyframes flip-fade-in {
+    0% { opacity: 0; transform: rotateY(-90deg) scale(0.9); }
+    100% { opacity: 1; transform: rotateY(0deg) scale(1); }
+}
+#waste .card.new-waste-card {
+    /* Applies only briefly during the draw */
+    animation: flip-fade-in 0.4s ease-in-out;
+}
+
+/* Invalid Move Shake */
+@keyframes shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); } 30%, 50%, 70% { transform: translateX(-3px); } 40%, 60% { transform: translateX(3px); } }
+.card.invalid-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
+/* Game Over Overlay */
+#game-over-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(100, 100, 100, 0.5); display: none; z-index: 99; border-radius: 5px; align-items: center; justify-content: center; text-align: center; }
+#game-container.game-over #game-over-overlay { display: flex; } /* Use flex to center text */
+#game-over-text { color: white; font-size: 2em; font-weight: bold; text-shadow: 1px 1px 3px black; }
+
+/* Rules Modal */
+.modal { display: none; position: fixed; z-index: 101; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+.modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 5px; position: relative; }
+.close-button { color: #aaa; position: absolute; right: 15px; top: 5px; font-size: 28px; font-weight: bold; }
+.close-button:hover, .close-button:focus { color: black; text-decoration: none; cursor: pointer; }
+.modal-content h2 { margin-top: 0; color: var(--accent-color); }
+.modal-content ul { margin-top: 10px; padding-left: 20px; }
+.modal-content li { margin-bottom: 5px; }
+
+/* Responsiveness (Mostly Same) */
+@media (max-width: 700px) {
+    :root { --card-width: 60px; --card-height: 85px; --card-reveal-vertical: 55px; /* 85 - 30 */ --card-horizontal-spacing: calc(var(--card-width) + 8px); }
+    h1 { font-size: 1.5em; }
+    #bottom-area { flex-direction: column; align-items: center; width: 100%;}
+    #info-area { align-items: center; text-align: center;}
+    #pyramid { width: calc(var(--card-horizontal-spacing) * 7 - (var(--card-horizontal-spacing) - var(--card-width))); height: calc(var(--card-height) + (var(--card-reveal-vertical) * 6)); }
+    .modal-content { width: 90%; margin: 10% auto; }
+}
